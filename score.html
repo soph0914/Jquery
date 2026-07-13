@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+  <head>
+    <title>JQuery Assignment 1</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="data.js"></script>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      table {
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid black;
+        border-radius: 4px; /* works here */
+        overflow: hidden;
+        width: 60%;
+      }
+
+      table tr th,
+      table tr td {
+        border: 1px solid black;
+        padding: 5px 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 5%">ID</th>
+            <th style="width: 30%">Name</th>
+            <th>Midterm</th>
+            <th>Final</th>
+            <th>Total</th>
+            <th>Grade</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+    <script>
+      $(document).ready(function () {
+        $(document).ready(function () {
+
+    function getGrade(total) {
+        if (total >= 80) return "A";
+        if (total >= 70) return "B";
+        if (total >= 60) return "C";
+        if (total >= 50) return "D";
+        return "F";
+    }
+
+    function renderTable() {
+
+        $("#table-body").empty();
+
+        $.each(students, function (index, student) {
+
+            let total = student.midterm + student.final;
+            let grade = getGrade(total);
+
+            let row = `
+                <tr>
+                    <td>${student.id}</td>
+                    <td>${student.name}</td>
+
+                    <td class="editable"
+                        data-index="${index}"
+                        data-field="midterm">
+                        ${student.midterm}
+                    </td>
+
+                    <td class="editable"
+                        data-index="${index}"
+                        data-field="final">
+                        ${student.final}
+                    </td>
+
+                    <td>${total}</td>
+                    <td>${grade}</td>
+                </tr>
+            `;
+
+            $("#table-body").append(row);
+
+        });
+
+        enableEditing();
+
+    }
+
+    function enableEditing() {
+
+        $(".editable").click(function () {
+
+            let cell = $(this);
+
+            if (cell.find("input").length) return;
+
+            let oldValue = cell.text().trim();
+
+            let input = $("<input>", {
+                type: "number",
+                min: 0,
+                max: 50,
+                value: oldValue
+            });
+
+            cell.empty().append(input);
+
+            input.focus();
+
+            input.on("keydown", function (e) {
+
+                if (e.key === "Escape") {
+
+                    cell.text(oldValue);
+
+                }
+
+                if (e.key === "Enter") {
+
+                    let newValue = Number(input.val());
+
+                    if (isNaN(newValue) || newValue < 0 || newValue > 50) {
+
+                        alert("Score must be between 0 and 50.");
+                        cell.text(oldValue);
+                        return;
+
+                    }
+
+                    let index = cell.data("index");
+                    let field = cell.data("field");
+
+                    students[index][field] = newValue;
+
+                    renderTable();
+
+                }
+
+            });
+
+        });
+
+    }
+
+    renderTable();
+
+});
+      });
+    </script>
+  </body>
+</html>
